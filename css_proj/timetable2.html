@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시간표</title>
+
+    <style>
+        @font-face {
+            font-family: 'Pretendard-SemiBold';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-SemiBold.woff2') format('woff2');
+            font-weight: 600;
+            font-display: swap;
+        }
+    
+        @font-face {
+            font-family: 'Pretendard-ExtraBold';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraBold.woff2') format('woff2');
+            font-weight: 800;
+            font-display: swap;
+        }
+    
+        @font-face {
+            font-family: 'Pretendard-Black';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Black.woff2') format('woff2');
+            font-weight: 900;
+            font-display: swap;
+        }
+    
+        h1 { 
+            color: #112D4E;
+            font-family: 'Pretendard-Black';
+            text-align: center;
+        }
+    
+        table {
+            border: 2px solid #112D4E; 
+            margin: auto; 
+            border-collapse: collapse;
+            text-align: center;
+        }
+    
+        th {
+            border: 1px solid #112D4E;
+            color: white;
+            text-align: center;
+        }
+    
+        .week {
+            background-color: #112D4E;
+            font-family: 'Pretendard-ExtraBold';
+        }
+    
+        .period {
+            border-right: 2px solid #112D4E;
+            background-color: #DBE2EF;
+            color: #112D4E;
+            width: 14px;
+            font-family: 'Pretendard-SemiBold';
+            font-size: 0.8em;
+        }
+    
+        td {
+            border: 1px solid #DBE2EF;
+            background-color: #F9F7F7;
+            width: 100px;
+            height: 50px;
+            font-family: 'Pretendard-SemiBold';
+            word-break: keep-all;
+            text-align: center;
+            vertical-align: top;
+        }
+    
+        .subject {
+            padding-top: 0.5em; 
+            background-color: #3F72AF;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>2학년 2학기 시간표</h1>
+    <table>
+        <thead>
+            <tr>
+                <th class="week"></th>
+                <th class="week">월</th>
+                <th class="week">화</th>
+                <th class="week">수</th>
+                <th class="week">목</th>
+                <th class="week">금</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            <tr>
+                <th class="period">1</th>
+                <td></td>
+                <td rowspan="3" class="subject">웹 프로그래밍</td>
+                <td></td>
+                <td rowspan="3" class="subject">데이터베이스 설계</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">2</th>
+                <td></td>
+
+                <td></td>
+
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">3</th>
+                <td class="subject">채플</td>
+
+                <td rowspan="2" class="subject">역사와 문화</td>
+
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">4</th>
+                <td></td>
+                <td rowspan="3" class="subject">기계학습</td>
+
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">5</th>
+                <td rowspan="3" class="subject">인공지능 확률론</td>
+
+                <td></td>
+                <td rowspan="3" class="subject">객체지향 프로그래밍</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">6</th>
+
+
+                <td></td>
+
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">7</th>
+
+                <td></td>
+                <td></td>
+                
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">8</th>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th class="period">9</th>
+                <td></td>
+                <td class="subject">인생설계와 진로 II</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+        </tbody>
+    </table>
+</body>
+</html>
