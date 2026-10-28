@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+    let num = Number(prompt('성적을 입력해주세요'));
+    let grade;
+    
+    /*if (num >= 90) {
+        grade = 'A';
+    } else if (num >= 70) {
+        grade = 'B';
+    } else if (num >= 50) {
+        grade = 'C';
+    } else if (num >= 30) {
+        grade = 'D';
+    } else {
+        grade = 'F!!!!!!';
+    }*/
+   
+    /*switch (true) {
+        case num >= 90:
+            grade = 'A';
+            break;
+        case num >= 70:
+            grade = 'B';
+            break;
+        case num >= 50:
+            grade = 'C';
+            break;
+        case num >= 30:
+            grade = 'D';
+            break;
+        default:
+            grade = 'F!!!!!!';
+    }*/
+
+    switch (Math.floor(grade / 10)) {
+        case 10:
+        case 9:
+            grade = 'A';
+            break;
+        case 7:
+            grade = 'B';
+            break;
+        case 5:
+            grade = 'C';
+            break;
+        case 3:
+            grade = 'D';
+            break;
+        default:
+            grade = 'F!!!!!!';
+    }
+    
+    alert(grade + ' 입니다');
+</script>
+<body>
+    <h1>JS 다중 조건</h1>
+</body>
+</html>
