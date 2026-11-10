@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark" data-palette="violet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Design 3 Scientific Calculator</title>
+    <!-- Google Sans 스타일의 Outfit, Roboto 및 한글 Pretendard 웹폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <style>
+        /* =========================================================
+           Material Design 3 (Material You) 동적 컬러 토큰 시스템
+           ========================================================= */
+        :root {
+            /* 1. 기본 테마: Violet (라벤더 퍼플) - Dark */
+            --md-bg: #0f0d13;
+            --md-surface: #141218;
+            --md-surface-low: #1d1b20;
+            --md-surface-container: #2b2930;
+            --md-surface-high: #36343b;
+            --md-on-surface: #e6e0e9;
+            --md-on-surface-variant: #cac4d0;
+            --md-outline: rgba(202, 196, 208, 0.16);
+            
+            /* 공학용 버튼 (Surface Container Low - 차분한 보조 톤) */
+            --md-sci-bg: #1d1b20;
+            --md-sci-text: #cac4d0;
+
+            /* 숫자 버튼 (Surface Container High) */
+            --md-num-bg: #26242b;
+            --md-num-text: #e6e0e9;
+
+            /* 연산자 버튼 (Secondary Container) */
+            --md-sec-bg: #4a4458;
+            --md-sec-text: #e8def8;
+
+            /* 기능/강조 버튼 (Tertiary Container) */
+            --md-tert-bg: #633b48;
+            --md-tert-text: #ffd8e4;
+
+            /* '=' 및 활성 버튼 (Primary) */
+            --md-pri-bg: #d0bcff;
+            --md-pri-text: #381e72;
+
+            --md-danger-bg: rgba(242, 184, 181, 0.15);
+            --md-danger-text: #f2b8b5;
+            --md-ripple: rgba(255, 255, 255, 0.18);
+        }
+
+        /* Violet - Light */
+        :root[data-theme="light"][data-palette="violet"] {
+            --md-bg: #f3edf7;
+            --md-surface: #fef7ff;
+            --md-surface-low: #f7f2fa;
+            --md-surface-container: #ece6f0;
+            --md-surface-high: #e6e0e9;
+            --md-on-surface: #1d1b20;
+            --md-on-surface-variant: #49454f;
+            --md-outline: rgba(73, 69, 79, 0.15);
+            --md-sci-bg: #f3edf7;
+            --md-sci-text: #49454f;
+            --md-num-bg: #ece6f0;
+            --md-num-text: #1d1b20;
+            --md-sec-bg: #e8def8;
+            --md-sec-text: #1d192b;
+            --md-tert-bg: #ffd8e4;
+            --md-tert-text: #31111d;
+            --md-pri-bg: #6750a4;
+            --md-pri-text: #ffffff;
+            --md-danger-bg: rgba(179, 38, 30, 0.1);
+            --md-danger-text: #b3261e;
+            --md-ripple: rgba(0, 0, 0, 0.12);
+        }
+
+        /* 2. Emerald (세이지 그린) - Dark */
+        :root[data-theme="dark"][data-palette="emerald"] {
+            --md-bg: #0b0f0d;
+            --md-surface: #111412;
+            --md-surface-low: #191c1a;
+            --md-surface-container: #272b28;
+            --md-surface-high: #323633;
+            --md-on-surface: #e1e3df;
+            --md-on-surface-variant: #c1c9bf;
+            --md-outline: rgba(193, 201, 191, 0.16);
+            --md-sci-bg: #171b18;
+            --md-sci-text: #c1c9bf;
+            --md-num-bg: #202421;
+            --md-num-text: #e1e3df;
+            --md-sec-bg: #384b3c;
+            --md-sec-text: #d3e8d3;
+            --md-tert-bg: #244c57;
+            --md-tert-text: #bceaf7;
+            --md-pri-bg: #8bd6b3;
+            --md-pri-text: #003824;
+        }
+
+        /* Emerald - Light */
+        :root[data-theme="light"][data-palette="emerald"] {
+            --md-bg: #ebf3ed;
+            --md-surface: #f6fbf6;
+            --md-surface-low: #f0f5f0;
+            --md-surface-container: #e4ece6;
+            --md-surface-high: #dee5df;
+            --md-on-surface: #181d19;
+            --md-on-surface-variant: #414942;
+            --md-outline: rgba(65, 73, 66, 0.15);
+            --md-sci-bg: #eef6f0;
+            --md-sci-text: #414942;
+            --md-num-bg: #e4ece6;
+            --md-num-text: #181d19;
+            --md-sec-bg: #d3e8d3;
+            --md-sec-text: #0f1f12;
+            --md-tert-bg: #bceaf7;
+            --md-tert-text: #001f26;
+            --md-pri-bg: #1b6b4d;
+            --md-pri-text: #ffffff;
+            --md-danger-bg: rgba(179, 38, 30, 0.1);
+            --md-danger-text: #b3261e;
+            --md-ripple: rgba(0, 0, 0, 0.12);
+        }
+
+        /* 3. Coral (선셋 코랄) - Dark */
+        :root[data-theme="dark"][data-palette="coral"] {
+            --md-bg: #130d0b;
+            --md-surface: #1a110f;
+            --md-surface-low: #231917;
+            --md-surface-container: #322725;
+            --md-surface-high: #3d322f;
+            --md-on-surface: #f1dfdc;
+            --md-on-surface-variant: #d8c2be;
+            --md-outline: rgba(216, 194, 190, 0.16);
+            --md-sci-bg: #211715;
+            --md-sci-text: #d8c2be;
+            --md-num-bg: #2a201e;
+            --md-num-text: #f1dfdc;
+            --md-sec-bg: #5d3f3a;
+            --md-sec-text: #ffdad4;
+            --md-tert-bg: #53461a;
+            --md-tert-text: #f5e2a7;
+            --md-pri-bg: #ffb4a6;
+            --md-pri-text: #561e15;
+        }
+
+        /* Coral - Light */
+        :root[data-theme="light"][data-palette="coral"] {
+            --md-bg: #fceee9;
+            --md-surface: #fff8f6;
+            --md-surface-low: #fff1ed;
+            --md-surface-container: #f7e7e4;
+            --md-surface-high: #f1e0dc;
+            --md-on-surface: #231917;
+            --md-on-surface-variant: #534340;
+            --md-outline: rgba(83, 67, 64, 0.15);
+            --md-sci-bg: #fcf0ed;
+            --md-sci-text: #534340;
+            --md-num-bg: #f5e5e1;
+            --md-num-text: #231917;
+            --md-sec-bg: #ffdad4;
+            --md-sec-text: #2c1511;
+            --md-tert-bg: #f5e2a7;
+            --md-tert-text: #241a00;
+            --md-pri-bg: #904a3e;
+            --md-pri-text: #ffffff;
+            --md-danger-bg: rgba(179, 38, 30, 0.1);
+            --md-danger-text: #b3261e;
+            --md-ripple: rgba(0, 0, 0, 0.12);
+        }
+
+        /* 4. Ocean (오션 블루) - Dark */
+        :root[data-theme="dark"][data-palette="ocean"] {
+            --md-bg: #0b0e14;
+            --md-surface: #111318;
+            --md-surface-low: #191c20;
+            --md-surface-container: #282a2f;
+            --md-surface-high: #33353a;
+            --md-on-surface: #e2e2e9;
+            --md-on-surface-variant: #c4c6d0;
+            --md-outline: rgba(196, 198, 208, 0.16);
+            --md-sci-bg: #181a1f;
+            --md-sci-text: #c4c6d0;
+            --md-num-bg: #202329;
+            --md-num-text: #e2e2e9;
+            --md-sec-bg: #3e4759;
+            --md-sec-text: #dae2f9;
+            --md-tert-bg: #573e5c;
+            --md-tert-text: #fad8fd;
+            --md-pri-bg: #aac7ff;
+            --md-pri-text: #0a305f;
+        }
+
+        /* Ocean - Light */
+        :root[data-theme="light"][data-palette="ocean"] {
+            --md-bg: #edf1f9;
+            --md-surface: #f9f9ff;
+            --md-surface-low: #f3f3fa;
+            --md-surface-container: #e7e8ee;
+            --md-surface-high: #e1e2e8;
+            --md-on-surface: #191c20;
+            --md-on-surface-variant: #44474e;
+            --md-outline: rgba(68, 71, 78, 0.15);
+            --md-sci-bg: #f1f3f9;
+            --md-sci-text: #44474e;
+            --md-num-bg: #e6e8ee;
+            --md-num-text: #191c20;
+            --md-sec-bg: #dae2f9;
+            --md-sec-text: #131c2b;
+            --md-tert-bg: #fad8fd;
+            --md-tert-text: #28132e;
+            --md-pri-bg: #3b608f;
+            --md-pri-text: #ffffff;
+            --md-danger-bg: rgba(179, 38, 30, 0.1);
+            --md-danger-text: #b3261e;
+            --md-ripple: rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            background-color: var(--md-bg);
+            font-family: 'Outfit', 'Roboto', 'Pretendard Variable', sans-serif;
+            transition: background-color 0.4s cubic-bezier(0.2, 0, 0, 1);
+            padding: 24px;
+        }
+
+        /* 상단 Material You 동적 테마 컨트롤 바 */
+        .theme-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--md-surface-container);
+            padding: 8px 18px;
+            border-radius: 999px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.4s ease;
+        }
+
+        .theme-label {
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--md-on-surface-variant);
+            margin-right: 4px;
+        }
+
+        .swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), border-color 0.25s ease;
+        }
+
+        .swatch:hover { transform: scale(1.15); }
+        .swatch.active {
+            border-color: var(--md-on-surface);
+            transform: scale(1.15);
+        }
+
+        .swatch[data-color="violet"] { background: #d0bcff; }
+        .swatch[data-color="emerald"] { background: #8bd6b3; }
+        .swatch[data-color="coral"] { background: #ffb4a6; }
+        .swatch[data-color="ocean"] { background: #aac7ff; }
+
+        .bar-divider {
+            width: 1px;
+            height: 18px;
+            background: var(--md-outline);
+            margin: 0 2px;
+        }
+
+        .pill-toggle {
+            background: var(--md-num-bg);
+            color: var(--md-on-surface);
+            border: none;
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+        }
+
+        .pill-toggle:hover { background: var(--md-surface-high); }
+        .pill-toggle:active { transform: scale(0.93); }
+        .pill-toggle.active-panel {
+            background: var(--md-sec-bg);
+            color: var(--md-sec-text);
+        }
+
+        /* =========================================================
+           메인 워크스페이스 (가로형 계산기 + 우측 히스토리 사이드 시트)
+           ========================================================= */
+        .workspace {
+            display: flex;
+            align-items: stretch;
+            gap: 16px;
+            max-width: 1020px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* 계산기 본체 (가로 와이드 확장) */
+        #calc {
+            flex: 1;
+            max-width: 660px;
+            background-color: var(--md-surface);
+            border-radius: 40px;
+            padding: 16px;
+            box-shadow: 
+                0 24px 48px rgba(0, 0, 0, 0.38),
+                0 0 0 1px var(--md-outline);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        /* 상단 디스플레이 카드 */
+        .display-card {
+            background-color: var(--md-surface-container);
+            border-radius: 28px 28px 32px 32px;
+            padding: 16px 24px 12px;
+            min-height: 168px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.4s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        /* 디스플레이 상단 상태 표시바 (DEG/RAD 배지 & 수식 히스토리 미니뷰) */
+        .display-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .status-badges {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 0.76rem;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            padding: 4px 10px;
+            border-radius: 99px;
+            background: var(--md-surface-high);
+            color: var(--md-on-surface-variant);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .badge.active {
+            background: var(--md-pri-bg);
+            color: var(--md-pri-text);
+        }
+
+        #disp-last-expr {
+            font-size: 0.92rem;
+            color: var(--md-on-surface-variant);
+            opacity: 0.75;
+            text-align: right;
+            max-width: 70%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .display-body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            margin-top: auto;
+        }
+
+        #disp-main {
+            font-size: 3.1rem;
+            font-weight: 400;
+            color: var(--md-on-surface);
+            line-height: 1.12;
+            letter-spacing: -0.5px;
+            word-break: break-all;
+            text-align: right;
+            width: 100%;
+            transition: font-size 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.3s ease;
+        }
+
+        #disp-preview {
+            font-size: 1.45rem;
+            font-weight: 400;
+            color: var(--md-on-surface-variant);
+            min-height: 30px;
+            margin-top: 4px;
+            opacity: 0.85;
+            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        @keyframes mdSlideUp {
+            0% {
+                transform: translateY(20px) scale(0.88);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .md-result-anim {
+            animation: mdSlideUp 0.32s cubic-bezier(0.05, 0.7, 0.1, 1) forwards;
+        }
+
+        .drag-handle {
+            width: 38px;
+            height: 4px;
+            background-color: var(--md-on-surface-variant);
+            opacity: 0.3;
+            border-radius: 99px;
+            align-self: center;
+            margin-top: 10px;
+        }
+
+        /* =========================================================
+           가로형 키패드 영역 (좌측 3열 공학용 패드 + 우측 4열 표준 패드)
+           ========================================================= */
+        .keypad- decks {
+            display: flex;
+            gap: 14px;
+            padding: 2px 4px 4px;
+        }
+
+        .keypad-wrapper {
+            display: grid;
+            grid-template-columns: 3fr 4fr;
+            gap: 14px;
+            padding: 2px 4px 4px;
+        }
+
+        /* 공학용 버튼 패드 (3열 x 5행) */
+        .sci-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 9px;
+            padding-right: 14px;
+            border-right: 1px solid var(--md-outline);
+        }
+
+        /* 일반 계산 버튼 패드 (4열 x 5행) */
+        .std-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+        }
+
+        /* Material 3 공통 버튼 & Shape Morphing 애니메이션 */
+        .btn {
+            height: 62px;
+            border-radius: 34px;
+            border: none;
+            outline: none;
+            background-color: var(--md-num-bg);
+            color: var(--md-num-text);
+            font-family: inherit;
+            font-size: 1.55rem;
+            font-weight: 400;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 
+                border-radius 0.35s cubic-bezier(0.2, 0, 0, 1),
+                transform 0.25s cubic-bezier(0.2, 0, 0, 1),
+                background-color 0.3s ease,
+                color 0.3s ease;
+        }
+
+        /* 공학용 버튼 전용 스타일 (알약 형태 & 차분한 텍스트) */
+        .btn.sci {
+            background-color: var(--md-sci-bg);
+            color: var(--md-sci-text);
+            font-size: 1.08rem;
+            font-weight: 500;
+            border-radius: 24px;
+        }
+
+        /* INV 등 토글 활성화된 공학 버튼 */
+        .btn.sci.toggled {
+            background-color: var(--md-tert-bg);
+            color: var(--md-tert-text);
+            border-radius: 14px;
+        }
+
+        /* 연산자 버튼 (Secondary Container) */
+        .btn.op {
+            background-color: var(--md-sec-bg);
+            color: var(--md-sec-text);
+            font-size: 1.75rem;
+        }
+
+        /* AC 버튼 (Tertiary Container) */
+        .btn.func {
+            background-color: var(--md-tert-bg);
+            color: var(--md-tert-text);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        /* '=' 버튼 (Primary Container) */
+        .btn.equals {
+            background-color: var(--md-pri-bg);
+            color: var(--md-pri-text);
+            font-size: 1.9rem;
+        }
+
+        /* 호버 State Layer */
+        .btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: currentColor;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .btn:hover::after { opacity: 0.08; }
+
+        /* 클릭 시 원형 -> 둥근 사각형(Squircle) 모핑! */
+        .btn:active, .btn.active-key {
+            border-radius: 14px !important;
+            transform: scale(0.94);
+            transition: 
+                border-radius 0.08s cubic-bezier(0.05, 0.7, 0.1, 1),
+                transform 0.08s ease;
+        }
+
+        .btn:active::after, .btn.active-key::after { opacity: 0.15; }
+
+        /* 물결 파동 (Ripple) */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: var(--md-ripple);
+            transform: scale(0);
+            animation: mdRipple 0.55s cubic-bezier(0.2, 0, 0, 1);
+            pointer-events: none;
+        }
+
+        @keyframes mdRipple {
+            to {
+                transform: scale(3.5);
+                opacity: 0;
+            }
+        }
+
+        /* =========================================================
+           우측 계산 기록 사이드 시트 (Material 3 Side Sheet)
+           ========================================================= */
+        #history-panel {
+            width: 310px;
+            background-color: var(--md-surface);
+            border-radius: 40px;
+            padding: 20px 16px 16px;
+            box-shadow: 
+                0 24px 48px rgba(0, 0, 0, 0.38),
+                0 0 0 1px var(--md-outline);
+            display: flex;
+            flex-direction: column;
+            max-height: 556px;
+            transition: 
+                width 0.4s cubic-bezier(0.2, 0, 0, 1),
+                opacity 0.3s ease,
+                padding 0.4s ease,
+                margin 0.4s ease,
+                background-color 0.4s ease;
+            overflow: hidden;
+        }
+
+        /* 기록 패널 접힘 상태 */
+        #history-panel.collapsed {
+            width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            opacity: 0;
+            margin-left: -16px;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 8px 14px;
+            border-bottom: 1px solid var(--md-outline);
+            white-space: nowrap;
+        }
+
+        .history-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--md-on-surface);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-count {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 99px;
+            background: var(--md-sec-bg);
+            color: var(--md-sec-text);
+            font-weight: 600;
+        }
+
+        /* 기록 리스트 영역 */
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-list::-webkit-scrollbar { width: 5px; }
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--md-surface-high);
+            border-radius: 99px;
+        }
+
+        /* 빈 기록 안내 */
+        .history-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            color: var(--md-on-surface-variant);
+            opacity: 0.55;
+            font-size: 0.9rem;
+            text-align: center;
+            min-height: 260px;
+            white-space: nowrap;
+        }
+
+        .history-empty svg {
+            width: 42px;
+            height: 42px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+        }
+
+        /* 개별 계산 기록 카드 */
+        .history-item {
+            background: var(--md-surface-low);
+            border-radius: 20px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 
+                transform 0.25s cubic-bezier(0.2, 0, 0, 1),
+                background-color 0.2s ease,
+                border-color 0.2s ease;
+            animation: itemSlideIn 0.32s cubic-bezier(0.05, 0.7, 0.1, 1) forwards;
+        }
+
+        @keyframes itemSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-14px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .history-item:hover {
+            background: var(--md-surface-container);
+            border-color: var(--md-outline);
+            transform: translateY(-2px);
+        }
+
+        .history-item:active {
+            border-radius: 12px;
+            transform: scale(0.97);
+        }
+
+        /* 개별 기록 삭제 버튼 */
+        .del-item-btn {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--md-on-surface-variant);
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0;
+            display: grid;
+            place-items: center;
+            transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .history-item:hover .del-item-btn { opacity: 0.75; }
+        .del-item-btn:hover {
+            opacity: 1 !important;
+            background: var(--md-danger-bg);
+            color: var(--md-danger-text);
+        }
+
+        .hist-expr {
+            font-size: 0.88rem;
+            color: var(--md-on-surface-variant);
+            word-break: break-all;
+            text-align: right;
+            padding-left: 22px;
+        }
+
+        .hist-res {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--md-pri-bg);
+            word-break: break-all;
+            text-align: right;
+        }
+
+        :root[data-theme="light"] .hist-res {
+            color: var(--md-pri-bg);
+        }
+
+        /* 하단 기록 전체 초기화 버튼 */
+        .clear-history-btn {
+            margin-top: 8px;
+            height: 46px;
+            border-radius: 23px;
+            border: none;
+            background: var(--md-danger-bg);
+            color: var(--md-danger-text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: 
+                border-radius 0.3s cubic-bezier(0.2, 0, 0, 1),
+                transform 0.2s ease,
+                filter 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+        .clear-history-btn:hover:not(:disabled) {
+            filter: brightness(1.12);
+        }
+
+        .clear-history-btn:active:not(:disabled) {
+            border-radius: 12px;
+            transform: scale(0.96);
+        }
+
+        .clear-history-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* 화면이 좁을 때 반응형 처리 */
+        @media (max-width: 920px) {
+            .workspace {
+                flex-direction: column;
+                align-items: center;
+            }
+            #history-panel {
+                width: 100%;
+                max-width: 660px;
+                max-height: 320px;
+            }
+            #history-panel.collapsed {
+                width: 100%;
+                height: 0;
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+                margin-left: 0;
+                margin-top: -16px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .keypad-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .sci-grid {
+                grid-template-columns: repeat(5, 1fr);
+                padding-right: 0;
+                padding-bottom: 12px;
+                border-right: none;
+                border-bottom: 1px solid var(--md-outline);
+            }
+            .btn { height: 54px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 상단 Material You 동적 테마 & 히스토리 토글 바 -->
+    <div class="theme-bar">
+        <span class="theme-label">Material You</span>
+        <button class="swatch active" data-color="violet" title="라벤더 퍼플"></button>
+        <button class="swatch" data-color="emerald" title="세이지 그린"></button>
+        <button class="swatch" data-color="coral" title="선셋 코랄"></button>
+        <button class="swatch" data-color="ocean" title="오션 블루"></button>
+        <div class="bar-divider"></div>
+        <button class="pill-toggle" id="mode-toggle">☀️ Light</button>
+        <button class="pill-toggle active-panel" id="history-toggle" title="계산 기록 패널 여닫기">
+            🕒 기록
+        </button>
+    </div>
+
+    <!-- 메인 워크스페이스 (가로형 계산기 + 계산 기록 사이드 시트) -->
+    <div class="workspace">
+        <!-- 1. 안드로이드 공학용 와이드 계산기 -->
+        <div id="calc">
+            <div class="display-card">
+                <div class="display-header">
+                    <div class="status-badges">
+                        <span class="badge active" id="angle-badge" title="클릭하여 각도 단위(DEG/RAD) 전환">DEG</span>
+                        <span class="badge" id="inv-badge" title="역함수(INV) 활성화 상태">INV</span>
+                    </div>
+                    <div id="disp-last-expr"></div>
+                </div>
+
+                <div class="display-body">
+                    <div id="disp-main">0</div>
+                    <div id="disp-preview"></div>
+                </div>
+
+                <div class="drag-handle"></div>
+            </div>
+
+            <!-- 좌측 공학용 패드(3x5) + 우측 표준 패드(4x5) -->
+            <div class="keypad-wrapper">
+                <!-- 공학용 패드 (15키) -->
+                <div class="sci-grid">
+                    <button class="btn sci" id="btn-angle" data-val="ANGLE">RAD</button>
+                    <button class="btn sci" id="btn-inv" data-val="INV">INV</button>
+                    <button class="btn sci" data-val="π">π</button>
+
+                    <button class="btn sci inv-target" data-normal="sin(" data-inv="asin(" data-val="sin(">sin</button>
+                    <button class="btn sci inv-target" data-normal="cos(" data-inv="acos(" data-val="cos(">cos</button>
+                    <button class="btn sci inv-target" data-normal="tan(" data-inv="atan(" data-val="tan(">tan</button>
+
+                    <button class="btn sci inv-target" data-normal="ln(" data-inv="exp(" data-val="ln(">ln</button>
+                    <button class="btn sci inv-target" data-normal="log(" data-inv="10^(" data-val="log(">log</button>
+                    <button class="btn sci" data-val="e">e</button>
+
+                    <button class="btn sci inv-target" data-normal="√(" data-inv="^2" data-val="√(">√</button>
+                    <button class="btn sci" data-val="^">xʸ</button>
+                    <button class="btn sci" data-val="!">x!</button>
+
+                    <button class="btn sci" data-val="(">(</button>
+                    <button class="btn sci" data-val=")">)</button>
+                    <button class="btn sci" data-val="SIGN">+/−</button>
+                </div>
+
+                <!-- 표준 패드 (20키) -->
+                <div class="std-grid">
+                    <button class="btn func" data-val="AC">AC</button>
+                    <button class="btn op" data-val="( )">( )</button>
+                    <button class="btn op" data-val="%">%</button>
+                    <button class="btn op" data-val="/">÷</button>
+
+                    <button class="btn num" data-val="7">7</button>
+                    <button class="btn num" data-val="8">8</button>
+                    <button class="btn num" data-val="9">9</button>
+                    <button class="btn op" data-val="*">×</button>
+
+                    <button class="btn num" data-val="4">4</button>
+                    <button class="btn num" data-val="5">5</button>
+                    <button class="btn num" data-val="6">6</button>
+                    <button class="btn op" data-val="-">−</button>
+
+                    <button class="btn num" data-val="1">1</button>
+                    <button class="btn num" data-val="2">2</button>
+                    <button class="btn num" data-val="3">3</button>
+                    <button class="btn op" data-val="+">+</button>
+
+                    <button class="btn num" data-val="0">0</button>
+                    <button class="btn num" data-val=".">.</button>
+                    <button class="btn num" data-val="DEL">⌫</button>
+                    <button class="btn equals" data-val="=">=</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 우측 계산 기록 사이드 시트 (History Panel) -->
+        <aside id="history-panel">
+            <div class="history-header">
+                <div class="history-title">
+                    <span>계산 기록</span>
+                    <span class="history-count" id="history-count">0</span>
+                </div>
+            </div>
+
+            <div class="history-list" id="history-list">
+                <!-- 기록 아이템이 동적으로 추가됨 -->
+            </div>
+
+            <button class="clear-history-btn" id="clear-history-btn" disabled>
+                <span>🗑️ 기록 전체 초기화</span>
+            </button>
+        </aside>
+    </div>
+
+    <script>
+        const htmlEl = document.documentElement;
+        const swatches = document.querySelectorAll('.swatch');
+        const modeToggle = document.getElementById('mode-toggle');
+        const historyToggle = document.getElementById('history-toggle');
+        const historyPanel = document.getElementById('history-panel');
+        const historyListEl = document.getElementById('history-list');
+        const historyCountEl = document.getElementById('history-count');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+        const dispLastExpr = document.getElementById('disp-last-expr');
+        const dispMain = document.getElementById('disp-main');
+        const dispPreview = document.getElementById('disp-preview');
+        const angleBadge = document.getElementById('angle-badge');
+        const invBadge = document.getElementById('inv-badge');
+        const btnAngle = document.getElementById('btn-angle');
+        const btnInv = document.getElementById('btn-inv');
+        const invTargets = document.querySelectorAll('.inv-target');
+        const buttons = document.querySelectorAll('.btn');
+
+        let expression = '';
+        let isResultDisplayed = false;
+        let isDegree = true; // 기본값: DEG (도)
+        let isInv = false;   // 기본값: 일반 함수
+
+        // 로컬 스토리지에서 계산 기록 불러오기
+        let historyData = JSON.parse(localStorage.getItem('md3_calc_history') || '[]');
+
+        /* =========================================================
+           1. 테마, 각도(DEG/RAD), 역함수(INV), 히스토리 패널 제어
+           ========================================================= */
+        swatches.forEach(swatch => {
+            swatch.addEventListener('click', () => {
+                swatches.forEach(s => s.classList.remove('active'));
+                swatch.classList.add('active');
+                htmlEl.setAttribute('data-palette', swatch.dataset.color);
+            });
+        });
+
+        modeToggle.addEventListener('click', () => {
+            const current = htmlEl.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', next);
+            modeToggle.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+        });
+
+        historyToggle.addEventListener('click', () => {
+            historyPanel.classList.toggle('collapsed');
+            historyToggle.classList.toggle('active-panel');
+        });
+
+        function toggleAngleMode() {
+            isDegree = !isDegree;
+            angleBadge.textContent = isDegree ? 'DEG' : 'RAD';
+            btnAngle.textContent = isDegree ? 'RAD' : 'DEG';
+            updateDisplay();
+        }
+
+        angleBadge.addEventListener('click', toggleAngleMode);
+
+        function toggleInvMode() {
+            isInv = !isInv;
+            btnInv.classList.toggle('toggled', isInv);
+            invBadge.classList.toggle('active', isInv);
+
+            const labels = {
+                'sin(': ['sin', 'sin⁻¹'],
+                'cos(': ['cos', 'cos⁻¹'],
+                'tan(': ['tan', 'tan⁻¹'],
+                'ln(':  ['ln', 'eˣ'],
+                'log(': ['log', '10ˣ'],
+                '√(':   ['√', 'x²']
+            };
+
+            invTargets.forEach(btn => {
+                const normalVal = btn.dataset.normal;
+                const invVal = btn.dataset.inv;
+                btn.dataset.val = isInv ? invVal : normalVal;
+                btn.textContent = isInv ? labels[normalVal][1] : labels[normalVal][0];
+            });
+        }
+
+        /* =========================================================
+           2. 계산 기록(History) 렌더링, 불러오기 및 초기화
+           ========================================================= */
+        function saveHistory() {
+            localStorage.setItem('md3_calc_history', JSON.stringify(historyData));
+        }
+
+        function renderHistory() {
+            historyCountEl.textContent = historyData.length;
+            clearHistoryBtn.disabled = historyData.length === 0;
+
+            if (historyData.length === 0) {
+                historyListEl.innerHTML = `
+                    <div class="history-empty">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke-linecap="round"/>
+                            <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>아직 계산 기록이 없습니다</span>
+                    </div>
+                `;
+                return;
+            }
+
+            historyListEl.innerHTML = '';
+            historyData.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'history-item';
+                card.title = '클릭하여 이 값 불러오기';
+                card.innerHTML = `
+                    <button class="del-item-btn" title="이 기록 삭제">✕</button>
+                    <div class="hist-expr">${formatForDisplay(item.expr)} =</div>
+                    <div class="hist-res">${formatForDisplay(item.result)}</div>
+                `;
+
+                // 개별 삭제 버튼
+                const delBtn = card.querySelector('.del-item-btn');
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    historyData.splice(idx, 1);
+                    saveHistory();
+                    renderHistory();
+                });
+
+                // 수식 부분 클릭 시 수식을 복원, 결과 부분 클릭 시 결과값을 현재 수식에 삽입
+                const exprDiv = card.querySelector('.hist-expr');
+                exprDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    expression = item.expr;
+                    isResultDisplayed = false;
+                    dispLastExpr.textContent = '기록에서 수식 불러옴';
+                    updateDisplay();
+                });
+
+                card.addEventListener('click', () => {
+                    if (isResultDisplayed || !expression) {
+                        expression = item.result;
+                        isResultDisplayed = false;
+                    } else {
+                        const lastChar = expression.slice(-1);
+                        if (/[\d\)\%\πe!]/.test(lastChar)) {
+                            expression += '*' + item.result;
+                        } else {
+                            expression += item.result;
+                        }
+                    }
+                    dispLastExpr.textContent = `${formatForDisplay(item.expr)} =`;
+                    updateDisplay();
+                });
+
+                historyListEl.appendChild(card);
+            });
+        }
+
+        function addHistoryItem(expr, result) {
+            // 직전 기록과 완전히 같으면 중복 추가 방지
+            if (historyData.length > 0 && historyData[0].expr === expr && historyData[0].result === result) {
+                return;
+            }
+            historyData.unshift({ expr, result });
+            if (historyData.length > 50) historyData.pop(); // 최대 50개 보관
+            saveHistory();
+            renderHistory();
+        }
+
+        // 기록 전체 초기화 버튼
+        clearHistoryBtn.addEventListener('click', () => {
+            if (historyData.length === 0) return;
+            historyData = [];
+            saveHistory();
+            dispLastExpr.textContent = '';
+            renderHistory();
+        });
+
+        /* =========================================================
+           3. 공학용 수식 파서 엔진 (삼각함수, 로그, 팩토리얼, 거듭제곱, 할인 % 지원)
+           ========================================================= */
+        function factorial(n) {
+            if (n < 0 || !Number.isInteger(n)) return NaN;
+            if (n > 170) return Infinity;
+            let res = 1;
+            for (let i = 2; i <= n; i++) res *= i;
+            return res;
+        }
+
+        // 괄호가 없는 단일 평면 수식 계산기 (!, ^, *, /, +, - 및 상업용 % 처리)
+        function evalFlatExpression(flat) {
+            flat = flat.trim();
+            if (!flat) return NaN;
+
+            // 1. 팩토리얼(n!) 우선 처리
+            flat = flat.replace(/(\d+(?:\.\d+)?)!/g, (_, n) => String(factorial(Number(n))));
+
+            // 토큰 분리 (음수, 소수, 지수표기 e+, % 포함 숫자 및 연산자 ^, *, /, +, -)
+            const tokens = flat.match(/(?<!\d)-?\d+(?:\.\d+)?(?:e[\+\-]?\d+)?%?|[\^\*\/\+\-]/g);
+            if (!tokens) return NaN;
+
+            if (String(tokens[0]).endsWith('%')) {
+                tokens[0] = parseFloat(tokens[0]) / 100;
+            }
+
+            // 2. 거듭제곱(^) 처리 (우결합 지원)
+            for (let i = tokens.length - 1; i >= 0; i--) {
+                if (tokens[i] === '^') {
+                    const base = Number(tokens[i - 1]);
+                    const rawExp = String(tokens[i + 1]);
+                    const exp = rawExp.endsWith('%') ? parseFloat(rawExp) / 100 : Number(rawExp);
+                    const solved = Math.pow(base, exp);
+                    tokens.splice(i - 1, 3, solved);
+                }
+            }
+
+            // 3. 곱셈(*), 나눗셈(/) 처리
+            for (let i = 0; i < tokens.length; i++) {
+                if (tokens[i] === '*' || tokens[i] === '/') {
+                    const prev = Number(tokens[i - 1]);
+                    const rawNext = String(tokens[i + 1]);
+                    const next = rawNext.endsWith('%') ? parseFloat(rawNext) / 100 : Number(rawNext);
+                    if (tokens[i] === '/' && next === 0) return Infinity;
+                    const solved = (tokens[i] === '*') ? (prev * next) : (prev / next);
+                    tokens.splice(i - 1, 3, solved);
+                    i--;
+                }
+            }
+
+            // 4. 덧셈(+), 뺄셈(-) 처리 (15000 - 20% = 12000 할인/할증 계산 완벽 지원)
+            let result = Number(tokens[0]);
+            for (let i = 1; i < tokens.length; i += 2) {
+                const op = tokens[i];
+                const rawNext = String(tokens[i + 1]);
+                const next = rawNext.endsWith('%')
+                    ? result * (parseFloat(rawNext) / 100)
+                    : Number(rawNext);
+
+                if (op === '+') result += next;
+                if (op === '-') result -= next;
+            }
+
+            return result;
+        }
+
+        // 공학용 함수 계산기
+        function applySciFunc(fn, val) {
+            if (isNaN(val)) return NaN;
+            const toRad = isDegree ? (val * Math.PI / 180) : val;
+            const toDeg = isDegree ? (180 / Math.PI) : 1;
+
+            switch (fn) {
+                case 'sin': {
+                    // DEG 모드에서 sin(180) = 0 정확도 보정
+                    if (isDegree && val % 180 === 0) return 0;
+                    return Math.sin(toRad);
+                }
+                case 'cos': {
+                    if (isDegree && Math.abs(val % 180) === 90) return 0;
+                    return Math.cos(toRad);
+                }
+                case 'tan': {
+                    if (isDegree && Math.abs(val % 180) === 90) return Infinity;
+                    if (isDegree && val % 180 === 0) return 0;
+                    return Math.tan(toRad);
+                }
+                case 'asin': return Math.asin(val) * toDeg;
+                case 'acos': return Math.acos(val) * toDeg;
+                case 'atan': return Math.atan(val) * toDeg;
+                case 'ln':   return val <= 0 ? NaN : Math.log(val);
+                case 'log':  return val <= 0 ? NaN : Math.log10(val);
+                case 'sqrt': return val < 0 ? NaN : Math.sqrt(val);
+                case 'exp':  return Math.exp(val);
+                default:     return val;
+            }
+        }
+
+        // 전체 수식 파서 (괄호 자동 닫기 및 중첩 함수 해석)
+        function evaluateExpression(rawExpr) {
+            let expr = rawExpr.replace(/[\+\-\*\/\^]+$/, '');
+            if (!expr) return '';
+
+            // √ 기호를 내부 함수명 sqrt로 변환
+            expr = expr.replace(/√\(/g, 'sqrt(');
+
+            // 닫히지 않은 여는 괄호 '(' 개수만큼 끝에 ')' 자동 보충
+            const openCount = (expr.match(/\(/g) || []).length;
+            const closeCount = (expr.match(/\)/g) || []).length;
+            if (openCount > closeCount) {
+                expr += ')'.repeat(openCount - closeCount);
+            }
+
+            // 생략된 곱셈(*) 자동 삽입: 예) 2π -> 2*π, 2sin(30) -> 2*sin(30), (2)(3) -> (2)*(3)
+            expr = expr
+                .replace(/(\d|\)|%|!|π|e)(?=(asin|acos|atan|sin|cos|tan|ln|log|sqrt|exp|\(|π|e))/g, '$1*')
+                .replace(/(\)|%|!|π|e)(?=\d)/g, '$1*');
+
+            // 상수 π, e 치환 (지수 표기법 1e+5의 e는 건드리지 않음)
+            expr = expr
+                .replace(/π/g, `(${Math.PI})`)
+                .replace(/(?<![\d\.])e(?![\+\-\d])/g, `(${Math.E})`);
+
+            // 가장 안쪽의 함수 및 괄호부터 순차적으로 계산
+            let guard = 0;
+            const funcPattern = /(asin|acos|atan|sin|cos|tan|ln|log|sqrt|exp)\(([^\(\)]*)\)/;
+            const parenPattern = /\(([^\(\)]*)\)/;
+
+            while ((funcPattern.test(expr) || parenPattern.test(expr)) && guard < 60) {
+                guard++;
+                if (funcPattern.test(expr)) {
+                    expr = expr.replace(funcPattern, (_, fn, inner) => {
+                        const val = evalFlatExpression(inner);
+                        return String(applySciFunc(fn, val));
+                    });
+                } else {
+                    expr = expr.replace(parenPattern, (_, inner) => {
+                        return String(evalFlatExpression(inner));
+                    });
+                }
+            }
+
+            const finalRes = evalFlatExpression(expr);
+            if (!isFinite(finalRes) || isNaN(finalRes)) return 'Error';
+
+            // 부동소수점 정밀도 보정
+            return String(Number(finalRes.toPrecision(12)));
+        }
+
+        /* =========================================================
+           4. 화면 포맷팅 및 버튼 입력 핸들러
+           ========================================================= */
+        function formatNumberWithCommas(numStr) {
+            if (numStr.includes('e')) return numStr;
+            const parts = numStr.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return parts.join('.');
+        }
+
+        function formatForDisplay(str) {
+            if (!str) return '0';
+            if (str === 'Error') return '오류';
+            return str
+                .replace(/\d+(?:\.\d+)?(?:e[\+\-]?\d+)?/g, m => formatNumberWithCommas(m))
+                .replace(/asin\(/g, 'sin⁻¹(')
+                .replace(/acos\(/g, 'cos⁻¹(')
+                .replace(/atan\(/g, 'tan⁻¹(')
+                .replace(/\*/g, '×')
+                .replace(/\//g, '÷')
+                .replace(/(?<=\d|\)|%|!|π|e)\-/g, '−');
+        }
+
+        function updateDisplay(animateResult = false) {
+            const formatted = formatForDisplay(expression);
+            dispMain.textContent = formatted;
+
+            if (formatted.length > 18) {
+                dispMain.style.fontSize = '1.9rem';
+            } else if (formatted.length > 12) {
+                dispMain.style.fontSize = '2.45rem';
+            } else {
+                dispMain.style.fontSize = '3.1rem';
+            }
+
+            if (animateResult) {
+                dispMain.classList.remove('md-result-anim');
+                void dispMain.offsetWidth;
+                dispMain.classList.add('md-result-anim');
+                dispPreview.textContent = '';
+                return;
+            }
+
+            // 수식에 연산자나 공학 함수/상수가 포함되어 있을 때 실시간 미리보기 표시
+            const isComplex = /[\+\-\*\/\^\%\!πe\(]/.test(expression) && !/^-\d+(\.\d+)?$/.test(expression);
+            if (isComplex && !isResultDisplayed) {
+                const previewVal = evaluateExpression(expression);
+                if (previewVal && previewVal !== 'Error') {
+                    dispPreview.textContent = formatForDisplay(previewVal);
+                } else {
+                    dispPreview.textContent = '';
+                }
+            } else {
+                dispPreview.textContent = '';
+            }
+        }
+
+        function handleInput(val) {
+            if (expression === 'Error') expression = '';
+
+            if (val === 'ANGLE') {
+                toggleAngleMode();
+                return;
+            }
+
+            if (val === 'INV') {
+                toggleInvMode();
+                return;
+            }
+
+            if (val === 'AC') {
+                expression = '';
+                dispLastExpr.textContent = '';
+                isResultDisplayed = false;
+                updateDisplay();
+                return;
+            }
+
+            if (val === 'DEL') {
+                if (isResultDisplayed) isResultDisplayed = false;
+                // 함수 통째로 삭제 (sin(, asin(, ln( 등)
+                const funcMatch = expression.match(/(asin\(|acos\(|atan\(|sin\(|cos\(|tan\(|ln\(|log\(|exp\(|10\^\(|√\()$/);
+                if (funcMatch) {
+                    expression = expression.slice(0, -funcMatch[0].length);
+                } else {
+                    expression = expression.slice(0, -1);
+                }
+                updateDisplay();
+                return;
+            }
+
+            // 스마트 괄호 버튼 '( )'
+            if (val === '( )') {
+                const openCount = (expression.match(/\(/g) || []).length;
+                const closeCount = (expression.match(/\)/g) || []).length;
+                const lastChar = expression.slice(-1);
+
+                if (openCount > closeCount && /[\d\)\%\!πe]/.test(lastChar)) {
+                    val = ')';
+                } else {
+                    val = '(';
+                }
+            }
+
+            if (val === 'SIGN') {
+                if (!expression) {
+                    expression = '-';
+                } else {
+                    const currentVal = evaluateExpression(expression);
+                    if (currentVal && currentVal !== 'Error') {
+                        expression = String(Number(currentVal) * -1);
+                        isResultDisplayed = false;
+                    }
+                }
+                updateDisplay();
+                return;
+            }
+
+            // '=' 계산 실행 및 히스토리 저장
+            if (val === '=') {
+                if (!expression) return;
+                const rawExpr = expression;
+                const result = evaluateExpression(rawExpr);
+                if (!result) return;
+
+                if (result !== 'Error') {
+                    // 자동 보충된 닫는 괄호까지 포함한 깔끔한 수식으로 기록에 저장
+                    const openC = (rawExpr.match(/\(/g) || []).length;
+                    const closeC = (rawExpr.match(/\)/g) || []).length;
+                    const balancedExpr = openC > closeC ? rawExpr + ')'.repeat(openC - closeC) : rawExpr;
+                    dispLastExpr.textContent = `${formatForDisplay(balancedExpr)} =`;
+                    addHistoryItem(balancedExpr, result);
+                }
+
+                expression = result;
+                isResultDisplayed = true;
+                updateDisplay(true);
+                return;
+            }
+
+            // 제곱(^2) 단축 입력
+            if (val === '^2') {
+                if (!expression) return;
+                isResultDisplayed = false;
+                expression += '^2';
+                updateDisplay();
+                return;
+            }
+
+            // 이항/후위 연산자 (+, -, *, /, ^, %, !)
+            if (['+', '-', '*', '/', '^', '%', '!'].includes(val)) {
+                isResultDisplayed = false;
+                if (!expression && val !== '-') return;
+
+                const lastChar = expression.slice(-1);
+                if (['+', '-', '*', '/', '^'].includes(lastChar)) {
+                    if (expression === '-') return;
+                    if (val === '%' || val === '!') return;
+                    expression = expression.slice(0, -1) + val;
+                } else if (lastChar === '(' && val !== '-') {
+                    return;
+                } else {
+                    if ((lastChar === '%' || lastChar === '!') && (val === '%' || val === '!')) return;
+                    expression += val;
+                }
+                updateDisplay();
+                return;
+            }
+
+            // 소수점(.) 중복 방지
+            if (val === '.') {
+                if (isResultDisplayed) {
+                    expression = '0.';
+                    isResultDisplayed = false;
+                    updateDisplay();
+                    return;
+                }
+                const parts = expression.split(/[\+\-\*\/\^\(\)]/);
+                const currentNum = parts[parts.length - 1];
+                if (currentNum.includes('.') || currentNum.includes('%') || currentNum.includes('!')) return;
+                if (!currentNum) expression += '0';
+            }
+
+            // 공학 함수나 상수(sin(, π, e, () 또는 숫자 입력
+            if (isResultDisplayed) {
+                expression = val;
+                isResultDisplayed = false;
+            } else {
+                if (expression === '0' && val !== '.') {
+                    expression = val;
+                } else {
+                    expression += val;
+                }
+            }
+            updateDisplay();
+        }
+
+        // Material Ripple 생성
+        function createRipple(e, btn) {
+            const rect = btn.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = `${size}px`;
+
+            const x = e.clientX ? (e.clientX - rect.left - size / 2) : (rect.width / 2 - size / 2);
+            const y = e.clientY ? (e.clientY - rect.top - size / 2) : (rect.height / 2 - size / 2);
+
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.classList.add('ripple');
+
+            btn.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 550);
+        }
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                createRipple(e, btn);
+                handleInput(btn.dataset.val);
+            });
+        });
+
+        // 키보드 단축키 지원
+        window.addEventListener('keydown', (e) => {
+            let key = e.key;
+            if (key === 'Enter') key = '=';
+            if (key === 'Backspace') key = 'DEL';
+            if (key === 'Escape') key = 'AC';
+
+            const targetBtn = Array.from(buttons).find(b => b.dataset.val === key);
+            if (targetBtn) {
+                e.preventDefault();
+                createRipple({}, targetBtn);
+                targetBtn.classList.add('active-key');
+                setTimeout(() => targetBtn.classList.remove('active-key'), 140);
+                handleInput(key);
+            }
+        });
+
+        // 초기 계산 기록 렌더링
+        renderHistory();
+    </script>
+</body>
+</html>

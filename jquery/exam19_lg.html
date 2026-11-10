@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Glass Calculator</title>
+    <style>
+        @font-face {
+            font-family: 'BlinkMacSystemFont';
+            src: url('https://aliifam.github.io/BlinkMacSystemFont/webfont/fonts/BlinkMacSystemFont-Regular.woff2') format('woff2'),
+                url('https://aliifam.github.io/BlinkMacSystemFont/webfont/fonts/BlinkMacSystemFont-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-highlight: rgba(255, 255, 255, 0.5);
+            --btn-num: rgba(255, 255, 255, 0.12);
+            --btn-func: rgba(255, 255, 255, 0.24);
+            --btn-op: rgba(255, 159, 10, 0.75);
+            --text-primary: rgba(255, 255, 255, 0.95);
+            --text-secondary: rgba(255, 255, 255, 0.55);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #07070c;
+            font-family: 'BlinkMacSystemFont';
+            font-weight: 500;
+            font-style: normal;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 배경에서 유영하는 오로라 빛망울 (유리 굴절 효과를 극대화) */
+        .ambient-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.75;
+            animation: float 18s infinite ease-in-out alternate;
+        }
+
+        .blob-1 {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, #ff2a85, #7928ca);
+            top: 10%;
+            left: 25%;
+        }
+
+        .blob-2 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, #00dfd8, #007cf0);
+            bottom: 10%;
+            right: 25%;
+            animation-delay: -6s;
+            animation-duration: 22s;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #ff9f0a, #ff375f);
+            top: 45%;
+            left: 48%;
+            animation-delay: -12s;
+            animation-duration: 15s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(60px, -40px) scale(1.12) rotate(15deg); }
+            100% { transform: translate(-50px, 50px) scale(0.92) rotate(-15deg); }
+        }
+
+        /* Liquid Glass 메인 컨테이너 */
+        #calc {
+            position: relative;
+            z-index: 1;
+            width: 340px;
+            padding: 28px 24px 24px;
+            border-radius: 44px;
+            background: var(--glass-bg);
+            /* 핵심: 강력한 블러와 채도 증폭으로 뒤쪽 배경이 유리처럼 굴절됨 */
+            backdrop-filter: blur(40px) saturate(190%);
+            -webkit-backdrop-filter: blur(40px) saturate(190%);
+            /* 다중 그림자로 유리의 두께감과 상단 모서리 반사광(Specular Rim) 표현 */
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.12),
+                inset 0 1.5px 2px rgba(255, 255, 255, 0.6),
+                inset 0 -1.5px 2px rgba(255, 255, 255, 0.15),
+                inset 0 0 24px rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            overflow: hidden;
+        }
+
+        /* 마우스 움직임을 따라다니는 유리 표면 반사광 */
+        #calc::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                350px circle at var(--mouse-x, 50%) var(--mouse-y, 0%),
+                rgba(255, 255, 255, 0.18),
+                transparent 60%
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 디스플레이 영역 */
+        .display-container {
+            position: relative;
+            z-index: 1;
+            min-height: 115px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 10px 12px 20px;
+            word-break: break-all;
+        }
+
+        #disp1 {
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            min-height: 26px;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            transition: all 0.25s ease;
+        }
+
+        #disp2 {
+            font-size: 3.4rem;
+            font-weight: 200;
+            color: var(--text-primary);
+            line-height: 1.05;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 12px rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), font-size 0.15s ease;
+        }
+
+        /* 결과 도출 시 디스플레이 팝업 애니메이션 */
+        .pop-anim {
+            transform: scale(1.05);
+        }
+
+        /* 버튼 그리드 */
+        .btn-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        /* Liquid Glass 버튼 스타일 */
+        .btn {
+            height: 64px;
+            border-radius: 32px;
+            border: none;
+            outline: none;
+            background: var(--btn-num);
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 400;
+            font-family: inherit;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 각 버튼에도 입체 유리 테두리 빛 적용 */
+            box-shadow: 
+                0 6px 15px rgba(0, 0, 0, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.15);
+            /* Apple 특유의 탄성 물리 애니메이션 (Spring Physics) */
+            transition: 
+                transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                background 0.5s ease,
+                box-shadow 0.45s ease;
+        }
+
+        /* 상단 기능 버튼 (AC, ⌫, %) */
+        .btn.func {
+            background: var(--btn-func);
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        /* 우측 연산자 버튼 (+, -, ×, ÷, =) */
+        .btn.op {
+            background: var(--btn-op);
+            font-size: 1.7rem;
+            font-weight: 400;
+            box-shadow: 
+                0 6px 20px rgba(255, 159, 10, 0.3),
+                inset 0 1px 1.5px rgba(255, 255, 255, 0.65);
+        }
+
+        /* 0번 버튼 와이드 배치 */
+        .btn.zero {
+            grid-column: span 2;
+            justify-content: flex-start;
+            padding-left: 26px;
+        }
+
+        /* 호버 시 유리가 빛을 머금는 효과 */
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.22),
+                inset 0 1px 2px rgba(255, 255, 255, 0.75),
+                0 0 15px rgba(255, 255, 255, 0.15);
+        }
+
+        .btn.func:hover {
+            background: rgba(255, 255, 255, 0.36);
+        }
+
+        .btn.op:hover {
+            background: rgba(255, 179, 64, 0.9);
+            box-shadow: 
+                0 10px 24px rgba(255, 159, 10, 0.45),
+                inset 0 1px 2px rgba(255, 255, 255, 0.85);
+        }
+
+        /* 클릭(Active) 시 쫀득하게 눌리며 밝게 발광 후 서서히 사그라듦 (iOS 계산기 효과) */
+        .btn:active, .btn.active-key {
+            transform: scale(0.91);
+            background: rgba(255, 255, 255, 0.55) !important;
+            transition: transform 0.08s ease, background 0.05s ease;
+        }
+
+        .btn.op:active, .btn.op.active-key {
+            background: rgba(255, 225, 180, 0.95) !important;
+            color: #d97706;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 유리 뒤에서 움직이는 오로라 배경 -->
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div id="calc">
+        <div class="display-container">
+            <div id="disp1"></div>
+            <div id="disp2">0</div>
+        </div>
+        <div class="btn-grid">
+            <button class="btn func" data-val="AC">AC</button>
+            <button class="btn func" data-val="DEL">⌫</button>
+            <button class="btn func" data-val="%">%</button>
+            <button class="btn op" data-val="/">÷</button>
+
+            <button class="btn num" data-val="7">7</button>
+            <button class="btn num" data-val="8">8</button>
+            <button class="btn num" data-val="9">9</button>
+            <button class="btn op" data-val="*">×</button>
+
+            <button class="btn num" data-val="4">4</button>
+            <button class="btn num" data-val="5">5</button>
+            <button class="btn num" data-val="6">6</button>
+            <button class="btn op" data-val="-">−</button>
+
+            <button class="btn num" data-val="1">1</button>
+            <button class="btn num" data-val="2">2</button>
+            <button class="btn num" data-val="3">3</button>
+            <button class="btn op" data-val="+">+</button>
+
+            <button class="btn num zero" data-val="0">0</button>
+            <button class="btn num" data-val=".">.</button>
+            <button class="btn op" data-val="=">=</button>
+        </div>
+    </div>
+
+    <script>
+        const calc = document.getElementById('calc');
+        const disp1 = document.getElementById('disp1');
+        const disp2 = document.getElementById('disp2');
+        const buttons = document.querySelectorAll('.btn');
+
+        let expression = '';
+        let isResultDisplayed = false;
+
+        // 1. 마우스 트래킹 유리 표면 반사광 효과
+        calc.addEventListener('mousemove', (e) => {
+            const rect = calc.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            calc.style.setProperty('--mouse-x', `${x}px`);
+            calc.style.setProperty('--mouse-y', `${y}px`);
+        });
+
+        // 화면 표시용 포맷터 (*, / 를 ×, ÷ 로 아름답게 변환)
+        function formatForDisplay(str) {
+            if (!str) return '0';
+            return str
+                .replace(/\*/g, ' × ')
+                .replace(/\//g, ' ÷ ')
+                .replace(/\+/g, ' + ')
+                .replace(/(?<=\d)\-/g, ' − ');
+        }
+
+        // 글자 수에 따른 폰트 크기 자동 조절
+        function updateDisplay() {
+            const formatted = formatForDisplay(expression);
+            disp2.textContent = formatted;
+
+            if (formatted.length > 12) {
+                disp2.style.fontSize = '2.1rem';
+            } else if (formatted.length > 8) {
+                disp2.style.fontSize = '2.6rem';
+            } else {
+                disp2.style.fontSize = '3.4rem';
+            }
+        }
+
+        // 2. 직접 구현한 안전한 수식 파서 (소수점, 음수, 부동소수점 오차 완벽 대응)
+        function evaluateExpression(expr) {
+            // 끝이 연산자로 끝나면 제거
+            expr = expr.replace(/[\+\-\*\/]+$/, '');
+            if (!expr) return '0';
+
+            // 백분율(%) 처리: 숫자% -> (숫자*0.01)
+            expr = expr.replace(/(\d+(?:\.\d+)?)%/g, (_, n) => String(Number(n) / 100));
+
+            // 정규식: 음수(시작이거나 연산자 뒤의 -), 소수점 포함 숫자, 연산자 분리
+            const tokens = expr.match(/(?<!\d)-?\d+(?:\.\d+)?|[\+\-\*\/]/g);
+            if (!tokens) return '0';
+
+            // 1단계: 곱셈(*), 나눗셈(/) 우선 처리
+            for (let i = 0; i < tokens.length; i++) {
+                if (tokens[i] === '*' || tokens[i] === '/') {
+                    const prev = Number(tokens[i - 1]);
+                    const next = Number(tokens[i + 1]);
+                    if (tokens[i] === '/' && next === 0) return 'Error'; // 0으로 나눌 때 예외 처리
+                    
+                    const solved = (tokens[i] === '*') ? (prev * next) : (prev / next);
+                    tokens.splice(i - 1, 3, solved);
+                    i--;
+                }
+            }
+
+            // 2단계: 덧셈(+), 뺄셈(-) 처리
+            let result = Number(tokens[0]);
+            for (let i = 1; i < tokens.length; i += 2) {
+                const op = tokens[i];
+                const next = Number(tokens[i + 1]);
+                if (op === '+') result += next;
+                if (op === '-') result -= next;
+            }
+
+            // 부동소수점 오차 제거 (예: 0.1 + 0.2 = 0.3)
+            return String(Number(result.toPrecision(12)));
+        }
+
+        // 3. 입력 핸들러
+        function handleInput(val) {
+            if (expression === 'Error') expression = '';
+
+            // AC (전체 초기화)
+            if (val === 'AC') {
+                expression = '';
+                disp1.textContent = '';
+                isResultDisplayed = false;
+                updateDisplay();
+                return;
+            }
+
+            // DEL (한 글자 지우기)
+            if (val === 'DEL') {
+                if (isResultDisplayed) {
+                    disp1.textContent = '';
+                    isResultDisplayed = false;
+                }
+                expression = expression.slice(0, -1);
+                updateDisplay();
+                return;
+            }
+
+            // = (계산 실행)
+            if (val === '=') {
+                if (!expression) return;
+                const result = evaluateExpression(expression);
+                disp1.textContent = formatForDisplay(expression) + ' =';
+                expression = result;
+                isResultDisplayed = true;
+                updateDisplay();
+
+                // 결과 도출 시 탄성 팝 애니메이션
+                disp2.classList.remove('pop-anim');
+                void disp2.offsetWidth; // 리플로우 강제
+                disp2.classList.add('pop-anim');
+                setTimeout(() => disp2.classList.remove('pop-anim'), 200);
+                return;
+            }
+
+            // 연산자 입력 (+, -, *, /, %)
+            if (['+', '-', '*', '/', '%'].includes(val)) {
+                isResultDisplayed = false;
+                if (!expression && val !== '-') return; // 첫 글자로 - 외의 연산자 금지
+                
+                const lastChar = expression.slice(-1);
+                // 마지막 글자가 이미 연산자면 새 연산자로 교체
+                if (['+', '-', '*', '/'].includes(lastChar)) {
+                    if (expression === '-') return;
+                    expression = expression.slice(0, -1) + val;
+                } else {
+                    expression += val;
+                }
+                updateDisplay();
+                return;
+            }
+
+            // 소수점(.) 중복 입력 방지
+            if (val === '.') {
+                if (isResultDisplayed) {
+                    expression = '0.';
+                    isResultDisplayed = false;
+                    updateDisplay();
+                    return;
+                }
+                const parts = expression.split(/[\+\-\*\/]/);
+                const currentNum = parts[parts.length - 1];
+                if (currentNum.includes('.')) return; // 현재 숫자에 이미 소수점이 있으면 무시
+                if (!currentNum) expression += '0';
+            }
+
+            // 숫자 입력
+            if (isResultDisplayed) {
+                expression = val;
+                disp1.textContent = '';
+                isResultDisplayed = false;
+            } else {
+                if (expression === '0' && val !== '.') {
+                    expression = val;
+                } else {
+                    expression += val;
+                }
+            }
+            updateDisplay();
+        }
+
+        // 버튼 클릭 이벤트 연결
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => handleInput(btn.dataset.val));
+        });
+
+        // 키보드 입력 지원
+        window.addEventListener('keydown', (e) => {
+            let key = e.key;
+            if (key === 'Enter') key = '=';
+            if (key === 'Backspace') key = 'DEL';
+            if (key === 'Escape') key = 'AC';
+
+            const targetBtn = Array.from(buttons).find(b => b.dataset.val === key);
+            if (targetBtn) {
+                e.preventDefault();
+                targetBtn.classList.add('active-key');
+                setTimeout(() => targetBtn.classList.remove('active-key'), 120);
+                handleInput(key);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluent Mica Calculator</title>
+    <!-- Windows 11 영문/숫자 전용 Segoe UI Variable 웹폰트 및 한글 Pretendard 웹폰트 로드 -->
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/segoe-ui-variable-static-display">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <style>
+        /* Windows 11 다크 모드 (Mica Dark) 컬러 토큰 */
+        :root[data-theme="dark"] {
+            --mica-base: rgba(32, 32, 32, 0.78);
+            --mica-tint: rgba(25, 28, 36, 0.65);
+            --window-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.62);
+            
+            /* Fluent 컨트롤 레이어: 숫자는 밝게, 연산/기능은 한 톤 낮게 */
+            --btn-num-bg: rgba(255, 255, 255, 0.085);
+            --btn-num-hover: rgba(255, 255, 255, 0.12);
+            --btn-num-active: rgba(255, 255, 255, 0.045);
+            
+            --btn-op-bg: rgba(255, 255, 255, 0.05);
+            --btn-op-hover: rgba(255, 255, 255, 0.09);
+            --btn-op-active: rgba(255, 255, 255, 0.03);
+
+            /* 상단 1px 베벨 하이라이트 (Fluent 입체감의 핵심) */
+            --btn-bevel-top: rgba(255, 255, 255, 0.09);
+            --btn-border: rgba(255, 255, 255, 0.05);
+            --reveal-glow: rgba(255, 255, 255, 0.14);
+
+            /* Windows 11 시그니처 액센트 블루 */
+            --accent-bg: #60cdff;
+            --accent-hover: #58bce9;
+            --accent-active: #4fa8d1;
+            --accent-text: #000000;
+            --shadow-color: rgba(0, 0, 0, 0.55);
+        }
+
+        /* Windows 11 라이트 모드 (Mica Light) 컬러 토큰 */
+        :root[data-theme="light"] {
+            --mica-base: rgba(243, 243, 243, 0.82);
+            --mica-tint: rgba(249, 249, 251, 0.7);
+            --window-border: rgba(0, 0, 0, 0.12);
+            --text-primary: #1a1a1a;
+            --text-secondary: rgba(0, 0, 0, 0.56);
+
+            --btn-num-bg: rgba(255, 255, 255, 0.75);
+            --btn-num-hover: rgba(255, 255, 255, 0.95);
+            --btn-num-active: rgba(240, 240, 240, 0.55);
+
+            --btn-op-bg: rgba(249, 249, 249, 0.45);
+            --btn-op-hover: rgba(255, 255, 255, 0.8);
+            --btn-op-active: rgba(235, 235, 235, 0.4);
+
+            --btn-bevel-top: rgba(255, 255, 255, 0.85);
+            --btn-border: rgba(0, 0, 0, 0.06);
+            --reveal-glow: rgba(0, 0, 0, 0.09);
+
+            --accent-bg: #0067c0;
+            --accent-hover: #1874c9;
+            --accent-active: #3081d0;
+            --accent-text: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.22);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 폰트 우선순위: 로컬 Segoe UI Variable -> CDN 웹폰트 -> Pretendard 한글 */
+            font-family: "Segoe UI Variable Display", "Segoe UI Variable Text", "Segoe UI Variable Static Display", "Pretendard Variable", "Segoe UI", sans-serif;
+            background-color: #0d1526;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Windows 11 기본 배경화면(Bloom) 감성의 배경 */
+        .win11-wallpaper {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 25%, #0067c0 0%, transparent 45%),
+                radial-gradient(circle at 80% 30%, #4f46e5 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, #00b7c3 0%, transparent 45%),
+                linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+            z-index: 0;
+            transition: filter 0.4s ease;
+        }
+
+        :root[data-theme="light"] .win11-wallpaper {
+            background: 
+                radial-gradient(circle at 25% 25%, #7ec8ff 0%, transparent 50%),
+                radial-gradient(circle at 75% 35%, #a5b4fc 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, #67e8f9 0%, transparent 50%),
+                linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+        }
+
+        /* Mica 재질 윈도우 컨테이너 */
+        #calc {
+            position: relative;
+            z-index: 1;
+            width: 344px;
+            border-radius: 10px;
+            background: var(--mica-base);
+            /* Mica 핵심: 바탕화면 색상을 아주 넓게 뭉개서(120px) 은은한 물감처럼 투영 */
+            backdrop-filter: blur(120px) saturate(140%);
+            -webkit-backdrop-filter: blur(120px) saturate(140%);
+            border: 1px solid var(--window-border);
+            box-shadow: 
+                0 25px 55px var(--shadow-color),
+                0 0 0 1px rgba(0, 0, 0, 0.1);
+            padding: 0 5px 5px 5px;
+            overflow: hidden;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Mica 특유의 미세한 광물(운모) 노이즈 질감 오버레이 */
+        #calc::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.028'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Windows 11 타이틀바 */
+        .titlebar {
+            position: relative;
+            z-index: 2;
+            height: 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 12px;
+        }
+
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: var(--text-primary);
+            opacity: 0.9;
+        }
+
+        .app-icon {
+            width: 14px;
+            height: 14px;
+            background: var(--accent-bg);
+            border-radius: 3px;
+            display: inline-grid;
+            place-items: center;
+            color: var(--accent-text);
+            font-weight: 700;
+            font-size: 10px;
+        }
+
+        .win-controls {
+            display: flex;
+            height: 100%;
+        }
+
+        .win-btn {
+            width: 44px;
+            height: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .win-btn:hover {
+            background: var(--btn-op-hover);
+        }
+
+        .win-btn.close:hover {
+            background: #c42b1c;
+            color: #ffffff;
+        }
+
+        /* 서브 헤더 (햄버거 메뉴, '표준' 타이틀, 테마 토글) */
+        .sub-header {
+            position: relative;
+            z-index: 2;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 5px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: background 0.15s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--btn-op-hover);
+        }
+
+        /* Windows 11 시그니처 애니메이션: 햄버거 메뉴 클릭 시 가로로 수축 */
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .icon-btn:active svg {
+            transform: scaleX(0.65);
+        }
+
+        .mode-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        /* 디스플레이 영역 */
+        .display-container {
+            position: relative;
+            z-index: 2;
+            height: 108px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 4px 12px 14px;
+            overflow: hidden;
+        }
+
+        #disp1 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            min-height: 20px;
+            margin-bottom: 4px;
+            transition: opacity 0.15s ease;
+        }
+
+        #disp2 {
+            font-size: 2.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.05;
+            letter-spacing: -0.8px;
+            /* Fluent Decelerate 곡선 */
+            transition: font-size 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        /* 계산 완료 시 아래에서 위로 미끄러지듯 올라오는 Fluent 모션 */
+        @keyframes fluentSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fluent-slide {
+            animation: fluentSlideUp 0.28s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+        }
+
+        /* 버튼 그리드 (Windows 11 표준 4x6 배열) */
+        .btn-grid {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3.5px;
+        }
+
+        /* Fluent 컨트롤 버튼 기본 스타일 */
+        .btn {
+            height: 52px;
+            border-radius: 5px;
+            border: 1px solid var(--btn-border);
+            /* 상단 1px 하이라이트 베벨로 얇은 입체감 형성 */
+            border-top-color: var(--btn-bevel-top);
+            background: var(--btn-op-bg);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.98rem;
+            font-weight: 400;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: background 0.12s ease, border-color 0.12s ease;
+        }
+
+        /* 숫자 패드 버튼은 한 단계 높은 명도(Elevation)를 가짐 */
+        .btn.num {
+            background: var(--btn-num-bg);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .btn.op {
+            font-size: 1.25rem;
+        }
+
+        /* Fluent Reveal Highlight: 마우스 커서 주변 버튼의 테두리와 표면이 은은하게 빛남 */
+        .btn::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                110px circle at var(--x, -200px) var(--y, -200px),
+                var(--reveal-glow),
+                transparent 100%
+            );
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .btn-grid:hover .btn::before {
+            opacity: 1;
+        }
+
+        /* 버튼 내부 텍스트 (클릭 시 축소 애니메이션용) */
+        .btn span {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.12s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.12s ease;
+        }
+
+        /* 호버 상태 */
+        .btn:hover {
+            background: var(--btn-op-hover);
+        }
+
+        .btn.num:hover {
+            background: var(--btn-num-hover);
+        }
+
+        /* 클릭(Active) 상태: 상단 베벨 빛이 사라지며 평면으로 눌리고 내부 글자가 살짝 작아짐 */
+        .btn:active, .btn.active-key {
+            background: var(--btn-op-active) !important;
+            border-top-color: var(--btn-border);
+        }
+
+        .btn.num:active, .btn.num.active-key {
+            background: var(--btn-num-active) !important;
+        }
+
+        .btn:active span, .btn.active-key span {
+            transform: scale(0.90);
+            opacity: 0.78;
+        }
+
+        /* '=' 액센트 버튼 */
+        .btn.equals {
+            background: var(--accent-bg);
+            color: var(--accent-text);
+            border-color: transparent;
+            border-top-color: rgba(255, 255, 255, 0.28);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .btn.equals:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn.equals:active, .btn.equals.active-key {
+            background: var(--accent-active) !important;
+            border-top-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Windows 11 Bloom 배경 -->
+    <div class="win11-wallpaper"></div>
+
+    <div id="calc">
+        <!-- 타이틀바 -->
+        <div class="titlebar">
+            <div class="app-title">
+                <span class="app-icon">±</span>
+                <span>계산기</span>
+            </div>
+            <div class="win-controls">
+                <button class="win-btn" title="최소화">─</button>
+                <button class="win-btn" title="최대화">□</button>
+                <button class="win-btn close" title="닫기">✕</button>
+            </div>
+        </div>
+
+        <!-- 서브 헤더 -->
+        <div class="sub-header">
+            <div class="nav-left">
+                <button class="icon-btn" title="탐색 열기">
+                    <svg viewBox="0 0 16 16" fill="none">
+                        <line x1="2" y1="4" x2="14" y2="4" stroke-linecap="round"/>
+                        <line x1="2" y1="8" x2="14" y2="8" stroke-linecap="round"/>
+                        <line x1="2" y1="12" x2="14" y2="12" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <span class="mode-label">표준</span>
+            </div>
+            <!-- Mica 다크/라이트 테마 전환 버튼 -->
+            <button class="icon-btn" id="theme-toggle" title="다크/라이트 모드 전환">
+                ☀️
+            </button>
+        </div>
+
+        <!-- 디스플레이 -->
+        <div class="display-container">
+            <div id="disp1"></div>
+            <div id="disp2">0</div>
+        </div>
+
+        <!-- Windows 11 표준 계산기 4x6 버튼 그리드 -->
+        <div class="btn-grid" id="grid">
+            <button class="btn func" data-val="%"><span>%</span></button>
+            <button class="btn func" data-val="CE"><span>CE</span></button>
+            <button class="btn func" data-val="AC"><span>C</span></button>
+            <button class="btn func" data-val="DEL"><span>⌫</span></button>
+
+            <button class="btn func" data-val="INV"><span>¹/ₓ</span></button>
+            <button class="btn func" data-val="SQ"><span>x²</span></button>
+            <button class="btn func" data-val="SQRT"><span>²√x</span></button>
+            <button class="btn op" data-val="/"><span>÷</span></button>
+
+            <button class="btn num" data-val="7"><span>7</span></button>
+            <button class="btn num" data-val="8"><span>8</span></button>
+            <button class="btn num" data-val="9"><span>9</span></button>
+            <button class="btn op" data-val="*"><span>×</span></button>
+
+            <button class="btn num" data-val="4"><span>4</span></button>
+            <button class="btn num" data-val="5"><span>5</span></button>
+            <button class="btn num" data-val="6"><span>6</span></button>
+            <button class="btn op" data-val="-"><span>−</span></button>
+
+            <button class="btn num" data-val="1"><span>1</span></button>
+            <button class="btn num" data-val="2"><span>2</span></button>
+            <button class="btn num" data-val="3"><span>3</span></button>
+            <button class="btn op" data-val="+"><span>+</span></button>
+
+            <button class="btn num" data-val="SIGN"><span>+/−</span></button>
+            <button class="btn num" data-val="0"><span>0</span></button>
+            <button class="btn num" data-val="."><span>.</span></button>
+            <button class="btn equals" data-val="="><span>=</span></button>
+        </div>
+    </div>
+
+    <script>
+        const htmlEl = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        const grid = document.getElementById('grid');
+        const disp1 = document.getElementById('disp1');
+        const disp2 = document.getElementById('disp2');
+        const buttons = document.querySelectorAll('.btn');
+
+        let expression = '';
+        let isResultDisplayed = false;
+
+        // 1. Mica 다크/라이트 테마 전환
+        themeToggle.addEventListener('click', () => {
+            const current = htmlEl.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', next);
+            themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // 2. Fluent Reveal Highlight: 마우스 좌표를 모든 버튼에 상대 좌표로 전달
+        grid.addEventListener('mousemove', (e) => {
+            buttons.forEach(btn => {
+                const rect = btn.getBoundingClientRect();
+                btn.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                btn.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        function formatForDisplay(str) {
+            if (!str) return '0';
+            return str
+                .replace(/\*/g, ' × ')
+                .replace(/\//g, ' ÷ ')
+                .replace(/\+/g, ' + ')
+                .replace(/(?<=\d)\-/g, ' − ');
+        }
+
+        function triggerFluentSlide() {
+            disp2.classList.remove('fluent-slide');
+            void disp2.offsetWidth;
+            disp2.classList.add('fluent-slide');
+        }
+
+        function updateDisplay(animate = false) {
+            const formatted = formatForDisplay(expression);
+            disp2.textContent = formatted;
+
+            if (formatted.length > 13) {
+                disp2.style.fontSize = '1.85rem';
+            } else if (formatted.length > 9) {
+                disp2.style.fontSize = '2.3rem';
+            } else {
+                disp2.style.fontSize = '2.9rem';
+            }
+
+            if (animate) triggerFluentSlide();
+        }
+
+        // 수정된 수식 파서 (실생활 할인/할증 퍼센트 계산 완벽 지원)
+        function evaluateExpression(expr) {
+            expr = expr.replace(/[\+\-\*\/]+$/, '');
+            if (!expr) return '0';
+        
+            // 숫자 뒤에 %가 붙은 형태(예: 20%)도 하나의 토큰으로 묶어서 분리
+            const tokens = expr.match(/(?<!\d)-?\d+(?:\.\d+)?%?|[\+\-\*\/]/g);
+            if (!tokens) return '0';
+        
+            // 맨 첫 숫자가 %인 경우 (예: 20% 단독 입력 -> 0.2)
+            if (String(tokens[0]).endsWith('%')) {
+                tokens[0] = parseFloat(tokens[0]) / 100;
+            }
+        
+            // 1단계: 곱셈(*), 나눗셈(/) 우선 처리 (여기서의 %는 단순 1/100)
+            for (let i = 0; i < tokens.length; i++) {
+                if (tokens[i] === '*' || tokens[i] === '/') {
+                    const prev = Number(tokens[i - 1]);
+                    const rawNext = String(tokens[i + 1]);
+                    const next = rawNext.endsWith('%') 
+                        ? parseFloat(rawNext) / 100 
+                        : Number(rawNext);
+                
+                    if (tokens[i] === '/' && next === 0) return 'Error';
+                    const solved = (tokens[i] === '*') ? (prev * next) : (prev / next);
+                    tokens.splice(i - 1, 3, solved);
+                    i--;
+                }
+            }
+        
+            // 2단계: 덧셈(+), 뺄셈(-) 처리 (A ± B% = A ± (A * B / 100))
+            let result = Number(tokens[0]);
+            for (let i = 1; i < tokens.length; i += 2) {
+                const op = tokens[i];
+                const rawNext = String(tokens[i + 1]);
+                // 뒤에 %가 붙어있으면 현재 누적값(result)의 비율로 계산!
+                const next = rawNext.endsWith('%')
+                    ? result * (parseFloat(rawNext) / 100)
+                    : Number(rawNext);
+            
+                if (op === '+') result += next;
+                if (op === '-') result -= next;
+            }
+        
+            return String(Number(result.toPrecision(12)));
+        }
+
+        // 단항 연산 처리 (x², √x, 1/x, +/-)
+        function applyUnary(type) {
+            const currentVal = Number(evaluateExpression(expression || '0'));
+            if (isNaN(currentVal)) return;
+
+            let res = 0;
+            let label = '';
+            if (type === 'SQ') {
+                res = currentVal * currentVal;
+                label = `sqr(${currentVal})`;
+            } else if (type === 'SQRT') {
+                if (currentVal < 0) {
+                    expression = '잘못된 입력입니다';
+                    updateDisplay(true);
+                    return;
+                }
+                res = Math.sqrt(currentVal);
+                label = `√(${currentVal})`;
+            } else if (type === 'INV') {
+                if (currentVal === 0) {
+                    expression = '0으로 나눌 수 없습니다';
+                    updateDisplay(true);
+                    return;
+                }
+                res = 1 / currentVal;
+                label = `1/(${currentVal})`;
+            } else if (type === 'SIGN') {
+                res = currentVal * -1;
+                expression = String(res);
+                updateDisplay();
+                return;
+            }
+
+            disp1.textContent = label;
+            expression = String(Number(res.toPrecision(12)));
+            isResultDisplayed = true;
+            updateDisplay(true);
+        }
+
+        function handleInput(val) {
+            if (expression.includes('수 없습니다') || expression.includes('입력입니다')) {
+                expression = '';
+            }
+
+            if (val === 'AC') {
+                expression = '';
+                disp1.textContent = '';
+                isResultDisplayed = false;
+                updateDisplay();
+                return;
+            }
+
+            // CE: 현재 입력 중인 마지막 숫자 토큰만 초기화
+            if (val === 'CE') {
+                if (isResultDisplayed) {
+                    expression = '';
+                    disp1.textContent = '';
+                    isResultDisplayed = false;
+                } else {
+                    expression = expression.replace(/(-?\d+(?:\.\d+)?)$/, '');
+                }
+                updateDisplay();
+                return;
+            }
+
+            if (val === 'DEL') {
+                if (isResultDisplayed) {
+                    disp1.textContent = '';
+                    isResultDisplayed = false;
+                }
+                expression = expression.slice(0, -1);
+                updateDisplay();
+                return;
+            }
+
+            if (['SQ', 'SQRT', 'INV', 'SIGN'].includes(val)) {
+                applyUnary(val);
+                return;
+            }
+
+            if (val === '=') {
+                if (!expression) return;
+                const result = evaluateExpression(expression);
+                disp1.textContent = formatForDisplay(expression) + ' =';
+                expression = result;
+                isResultDisplayed = true;
+                updateDisplay(true);
+                return;
+            }
+
+            if (['+', '-', '*', '/', '%'].includes(val)) {
+                isResultDisplayed = false;
+                if (!expression && val !== '-') return;
+                const lastChar = expression.slice(-1);
+                if (['+', '-', '*', '/'].includes(lastChar)) {
+                    if (expression === '-') return;
+                    expression = expression.slice(0, -1) + val;
+                } else {
+                    expression += val;
+                }
+                updateDisplay();
+                return;
+            }
+
+            if (val === '.') {
+                if (isResultDisplayed) {
+                    expression = '0.';
+                    isResultDisplayed = false;
+                    updateDisplay();
+                    return;
+                }
+                const parts = expression.split(/[\+\-\*\/]/);
+                const currentNum = parts[parts.length - 1];
+                if (currentNum.includes('.')) return;
+                if (!currentNum) expression += '0';
+            }
+
+            if (isResultDisplayed) {
+                expression = val;
+                disp1.textContent = '';
+                isResultDisplayed = false;
+            } else {
+                if (expression === '0' && val !== '.') {
+                    expression = val;
+                } else {
+                    expression += val;
+                }
+            }
+            updateDisplay();
+        }
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => handleInput(btn.dataset.val));
+        });
+
+        window.addEventListener('keydown', (e) => {
+            let key = e.key;
+            if (key === 'Enter') key = '=';
+            if (key === 'Backspace') key = 'DEL';
+            if (key === 'Escape') key = 'AC';
+
+            const targetBtn = Array.from(buttons).find(b => b.dataset.val === key);
+            if (targetBtn) {
+                e.preventDefault();
+                targetBtn.classList.add('active-key');
+                setTimeout(() => targetBtn.classList.remove('active-key'), 100);
+                handleInput(key);
+            }
+        });
+    </script>
+</body>
+</html>

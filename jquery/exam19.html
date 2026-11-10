@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>계산기</title>
 </head>
 <style>
     h1 { text-align: center; }
@@ -28,7 +28,7 @@
             else {
                 $('#disp1').val(cur); 
                 // $('#disp2').val(eval(cur));
-                // $('#disp2').val(new Function('return ' + cur)()); 뭔가 eval이랑 같은 문제를 공유할것 같은 느낌
+                // $('#disp2').val(new Function('return ' + cur)()); 뭔가 eval이랑 같지 않나?
 
                 let sep = cur.match(/(\d+|\+|\-|\*|\/)/g);
 
@@ -59,7 +59,7 @@
             }
         });
 
-        //AC 구현하
+        //AC 집가서 구현하기
         $('.func').click(function() {
             if ($(this).val() == 'AC') {
                 $('#disp1').val('');
